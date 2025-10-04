@@ -1,0 +1,212 @@
+:root{
+  --bg-orange: #EC8D00;   /* фон всего экрана */
+  --card-beige: #FDF8F3;  /* квадрат */
+  --mws-gold:   #B68E6B;  /* ободок и деления */
+  --mws-pumpkin:#E8654B;  /* минутная стрелка */
+  --mws-moss:   #7D733A;  /* цифры 1–12 */
+  --mws-coral:  #EC8D00;  /* верхняя панель, подписи минут */
+  --mws-gray:   #C6B9A2;  /* вспомогательный серый */
+  --card-size:  min(92vw, 780px);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+  background: var(--bg-orange);
+  color:#222;
+}
+
+/* Top bar */
+.mws-topbar{
+  position:sticky; top:0; z-index:10;
+  background: var(--mws-coral);
+  color:#fff;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: clamp(8px, 1.8vw, 16px) clamp(12px, 2.4vw, 24px);
+  box-shadow: 0 4px 16px rgba(0,0,0,.12);
+}
+.mws-left, .mws-center, .mws-right{display:flex; align-items:center; gap:12px}
+.mws-center{justify-content:center; flex:1; text-align:center}
+.mws-logo{height:clamp(40px,6vw,72px);width:auto;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));}
+.mws-title{font-weight:800;letter-spacing:.3px;font-size:clamp(22px,3.5vw,36px);}
+.lang-switch{display:inline-flex; gap:6px; background: rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); border-radius:999px; padding:4px;}
+.lang-switch button{appearance:none; border:0; background:transparent; color:#fff; padding:6px 10px; border-radius:999px; font-weight:700; cursor:pointer; font-size: clamp(12px, 2vw, 14px);}
+.lang-switch button.active{ background:#fff; color:#c24f00; }
+
+/* Layout / разрывы уменьшены до минимума */
+.main-wrap{ min-height: calc(100dvh - 64px); display:flex; align-items:flex-start; justify-content:center; padding: clamp(6px, .8vw, 12px) 16px 16px; }
+.clock-shell{ width: var(--card-size); display:flex; flex-direction:column; align-items:center; gap: clamp(2px, .6vw, 8px); }
+
+/* Электронные часы */
+.digital-wrap{ width:100%; display:flex; justify-content:center; }
+.digital{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-size: clamp(24px, 5.2vw, 44px);
+  color: #ffffff;
+  text-shadow: 0 3px 8px rgba(0,0,0,.35);
+  padding: .2em .6em;
+  border-radius: .6em;
+  background: rgba(0,0,0,.18);
+  border: 2px solid rgba(255,255,255,.25);
+  box-shadow: inset 0 4px 12px rgba(0,0,0,.2);
+}
+
+/* Карточка */
+.clock-card{
+  width: var(--card-size);
+  aspect-ratio: 1/1;
+  background: var(--card-beige);
+  border: 2px solid var(--mws-gold);
+  border-radius: 28px;
+  box-shadow: 0 16px 40px rgba(0,0,0,.12);
+  position:relative;
+  overflow:hidden;
+  display:grid; place-items:center;
+  padding: clamp(10px, 2.2vw, 20px);
+}
+
+/* Циферблат */
+.clock-scale{ width: 100%; height: 100%; position: relative; }
+.face{
+  position:absolute; inset:6%;
+  border-radius:50%;
+  background:#fff;
+  border: 6px solid var(--mws-gold);
+  box-shadow: inset 0 0 30px rgba(0,0,0,.08);
+  z-index:1;
+}
+
+.mlabel{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); color: var(--mws-coral); font-weight:800; z-index:2; user-select:none; }
+.num{ position:absolute; left:50%; top:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color: var(--mws-moss); transform: translate(-50%, -50%); user-select:none; z-index:2; }
+.num24{ position:absolute; left:50%; top:50%; transform: translate(-50%, -50%); color:#B5AA96; font-weight:600; z-index:2; user-select:none; }
+
+/* Деления — все цвета ободка */
+.tick{ position:absolute; left:50%; top:50%; width:0; height:0; transform-origin: 0 0; z-index:2; }
+.tick::after{ content:""; display:block; width: 11px; height: 3px; background: var(--mws-gold); transform: translate(-6px, -100%); border-radius: 2px; }
+.tick.major::after{ width: 15px; height: 8px; transform: translate(-14px, -100%); }
+
+/* Стрелки */
+.hand{ position:absolute; left:50%; top:50%; transform-origin: 50% 100%; pointer-events:auto; touch-action:none; z-index:3; cursor:grab; }
+.hand:active{ cursor:grabbing; }
+.hand.hour{ width: 2.8%; height: 30%; background: var(--mws-gold); border-radius: 6px; }
+.hand.minute{ width: 2%; height: 40%; background: var(--mws-pumpkin); border-radius: 6px; }
+.hand.second{ width: 1.2%; height: 43%; background: var(--mws-coral); border-radius: 6px; }
+.cap{ position:absolute; left:50%; top:50%; width: 5.2%; height:5.2%; transform: translate(-50%,-50%); background:#333; border-radius:50%; box-shadow: 0 2px 6px rgba(0,0,0,.25); z-index:4; }
+.leo-center{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); width: 28%; height: auto; pointer-events:none; filter: drop-shadow(0 3px 6px rgba(0,0,0,.18)); z-index:5; }
+
+.hidden{display:none !important}
+
+/* Полоса управления */
+.controls-row{
+  width: var(--card-size);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin-top: clamp(6px, 1vw, 10px);
+}
+.controls-row > .mode-switch{ justify-self: center; }
+.controls-row > .train-switch{ justify-self: center; }
+.controls-row > .task-actions{ justify-self: end; }
+
+/* Сообщения/цель */
+.task-msg-row{
+  width: var(--card-size);
+  display:grid;
+  grid-template-columns: 1fr;
+  justify-items:center;
+  row-gap: 6px;
+  margin-top: 6px;
+}
+.task-msg-row .task-target{ color:#fff; font-weight:800; }
+.task-msg-row .task-msg{ color:#fff; font-weight:800; }
+
+/* Унифицированная «пилюля» */
+.pill-switch{
+  display:inline-flex;
+  gap:6px;
+  background: rgba(255,255,255,.18);
+  border:1px solid rgba(255,255,255,.35);
+  border-radius:999px;
+  padding:4px;
+  backdrop-filter: blur(3px);
+}
+.pill-switch button{
+  appearance:none; border:0; background:transparent; color:#fff;
+  padding:6px 10px; border-radius:999px; font-weight:700;
+  cursor:pointer; font-size: clamp(12px, 2vw, 14px);
+}
+.pill-switch button.active{ background:#fff; color:#c24f00; }
+
+/* Отключено */
+.pill-switch.disabled{ opacity:.45; pointer-events:none; filter:grayscale(20%); }
+
+/* Кнопки задания выглядят как пилюля */
+.task-actions{ display:inline-flex; }
+.task-actions button{ background:transparent; color:#fff; border:0; }
+.task-actions .btn-check{ border-left:1px solid rgba(255,255,255,.35); }
+
+/* Responsive stacking */
+@media (max-width: 560px){
+  .controls-row{ grid-template-columns: 1fr; row-gap: 8px; justify-items:center; }
+  .controls-row > .task-actions{ justify-self: center; }
+}
+
+
+/* Клип для вспышки текста (SUPER!/Попробуй ещё раз) */
+.feedback-clip{
+  position:absolute; inset:6%;
+  border-radius:50%; overflow:hidden;
+  pointer-events:none; z-index:6;
+}
+
+/* Круглый контейнер для конфетти */
+.confetti-wrap{
+  position:absolute; inset:6%;
+  border-radius:50%; overflow:hidden;
+  pointer-events:none; z-index:7; /* над стрелками */
+}
+.confetti-canvas{ width:100%; height:100%; display:block; }
+
+/* Вспышка текста из центра */
+.feedback-burst{
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%) scale(0.2);
+  font-weight:900; font-size:clamp(24px,8vw,64px);
+  line-height:1; white-space:nowrap;
+  color:#0a7b0a; text-shadow:0 3px 14px rgba(0,0,0,.35);
+  opacity:0;
+}
+.feedback-burst.error{ color:#a31212; }
+@keyframes burstScale{
+  0%{transform:translate(-50%,-50%) scale(0.2);opacity:0;}
+  12%{opacity:1;}
+  75%{transform:translate(-50%,-50%) scale(1.0);opacity:1;}
+  100%{transform:translate(-50%,-50%) scale(1.0);opacity:0;}
+}
+.feedback-burst.play{ animation:burstScale 900ms cubic-bezier(.2,.8,.16,1) forwards; }
+
+
+/* re-append feedback and disabled to ensure present */
+
+/* Tighten spacing between title and digital */
+.main-wrap{ padding-top: clamp(4px,.6vw,8px); }
+.clock-shell{ gap: clamp(2px, .6vw, 8px); }
+
+
+
+/* circular clip for confetti over dial */
+.confetti-clip{
+  position:absolute;
+  inset:6%;
+  border-radius:50%;
+  overflow:hidden; /* visually clip, canvas will paint full but container masks */
+  pointer-events:none;
+  z-index:7; /* above feedback text; tweak as you wish */
+}
+
+.main-wrap{ padding-top: 8px; }
+.clock-card{ margin-bottom: 8px; }
