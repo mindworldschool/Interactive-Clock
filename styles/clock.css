@@ -1,31 +1,41 @@
-/* ==================  VARIABLES  ================== */
+/* =============== VARIABLES =============== */
 :root{
-  --bg-orange: #EC8D00;   /* фон */
-  --card-beige: #FDF8F3;  /* квадрат */
-  --mws-gold:   #B68E6B;  /* ободок и деления */
-  --mws-pumpkin:#E8654B;  /* минутная стрелка */
-  --mws-moss:   #7D733A;  /* цифры 1-12 */
-  --mws-coral:  #EC8D00;  /* верхняя панель, подписи минут */
-  --mws-gray:   #C6B9A2;  /* тон делений */
+  --bg-orange: #EC8D00;
+  --card-beige: #FDF8F3;
+  --mws-gold:   #B68E6B;
+  --mws-pumpkin:#E8654B;
+  --mws-moss:   #7D733A;
+  --mws-coral:  #EC8D00;
+  --mws-gray:   #C6B9A2;
 
   /* размер карточки ограничиваем и шириной, и высотой окна */
   --card-size: min(92vw, 780px, calc(100svh - 220px));
+
+  /* адаптивная толщина линий */
+  --rim:      clamp(3px, 0.6vw, 8px);
+  --tick-h:   clamp(2px, 0.35vw, 6px);
+  --tick-w:   clamp(8px, 1.4vw, 16px);
+  --tick-wM:  clamp(12px, 1.9vw, 22px);
+
+  --hand-hour:   clamp(2px, 0.28vw, 8px);
+  --hand-minute: clamp(2px, 0.24vw, 6px);
+  --hand-second: clamp(1.5px, 0.18vw, 5px);
 }
 @supports not (height: 100svh) {
   :root{ --card-size: min(92vw, 780px, calc(100vh - 220px)); }
 }
 
-/* ==================  BASE  ================== */
+/* =============== BASE =============== */
 *{ box-sizing:border-box; }
-html,body{ height:100%; margin:0; padding:0; }
+html,body{ height:100%; }
 body{
+  margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
   background: var(--bg-orange);
   color:#222;
-  overflow-x: hidden;
 }
 
-/* ==================  TOP BAR  ================== */
+/* top bar */
 .mws-topbar{
   position:sticky; top:0; z-index:10;
   background: var(--mws-coral); color:#fff;
@@ -41,30 +51,24 @@ body{
 .lang-switch button{appearance:none; border:0; background:transparent; color:#fff; padding:6px 10px; border-radius:999px; font-weight:700; cursor:pointer; font-size: clamp(12px, 2vw, 14px);}
 .lang-switch button.active{ background:#fff; color:#c24f00; }
 
-/* ==================  LAYOUT  ================== */
+/* =============== LAYOUT =============== */
+/* без 100vh — не будет «бежевого хвоста» */
 .main-wrap{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 12px 12px 16px;
-  gap: 10px;
+  min-height:auto;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:flex-start;
+  padding:12px 12px 24px;
+  gap:10px;
 }
+.clock-shell{ width:100%; max-width:var(--card-size); }
 
-/* Оболочка — по ширине квадрата */
-.clock-shell{
-  width: var(--card-size);
-  max-width: var(--card-size);
-  margin: 0 auto;
-}
-
-/* Электронные часы — центрируем и «привязываем» к ширине квадрата */
+/* цифровые часы строго по ширине карточки */
 .digital-wrap{
-  width: var(--card-size);
-  margin: 6px auto 0;
-  display: grid;
-  place-items: center;
+  width:var(--card-size);
+  margin:0 auto 8px;
+  display:flex; justify-content:center;
 }
+
 .digital{
   background: rgba(0,0,0,.15);
   color:#fff;
@@ -76,7 +80,7 @@ body{
   backdrop-filter: blur(2px);
 }
 
-/* ==================  CLOCK CARD  ================== */
+/* карточка */
 .clock-card{
   width: var(--card-size);
   aspect-ratio: 1 / 1;
@@ -88,8 +92,10 @@ body{
   overflow:hidden;
   display:grid; place-items:center;
   padding: clamp(10px, 2.2vw, 20px);
-  margin: 6px auto;
+  z-index: 1;               /* ниже, чем блок с кнопками */
 }
+
+/* сама сцена часов */
 .clock-scale{ width:100%; height:100%; position:relative; }
 
 /* белый циферблат */
@@ -97,102 +103,102 @@ body{
   position:absolute; inset:6%;
   border-radius:50%;
   background:#fff;
-  border: 6px solid var(--mws-gold);
+  border: var(--rim) solid var(--mws-gold);
   box-shadow: inset 0 0 30px rgba(0,0,0,.08);
   z-index:1;
 }
 
-/* ==================  DELENIYA & NUMBERS  ================== */
+/* =============== MARKS & NUMBERS =============== */
 .tick{ position:absolute; left:50%; top:50%; width:0; height:0; transform-origin: 0 0; z-index:2; }
 .tick::after{
   content:""; display:block;
-  width: 11px; height: 3px; background: var(--mws-gold);
-  transform: translate(-6px, -100%); border-radius: 2px;
+  width: var(--tick-w); height: var(--tick-h);
+  background: var(--mws-gold);
+  transform: translate(calc(var(--tick-w) * -0.6), -100%);
+  border-radius: 2px;
 }
-.tick.major::after{ width:15px; height:8px; transform: translate(-14px,-100%); }
+.tick.major::after{
+  width: var(--tick-wM); height: calc(var(--tick-h) * 2);
+  transform: translate(calc(var(--tick-wM) * -0.9), -100%);
+}
 
 .mlabel{
   position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
   color: var(--mws-coral); font-weight:800; z-index:2; user-select:none;
+  font-size: clamp(10px, 1.9vw, 18px);
 }
 .num{
   position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
   display:flex; align-items:center; justify-content:center; font-weight:800;
   color:var(--mws-moss); z-index:2; user-select:none;
+  font-size: clamp(14px, 2.8vw, 26px);
 }
 .num24{
   position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
   color:#B5AA96; font-weight:600; z-index:2; user-select:none;
+  font-size: clamp(10px, 1.8vw, 16px);
 }
 
-/* ==================  HANDS  ================== */
+/* =============== HANDS =============== */
 .hand{ position:absolute; left:50%; top:50%; transform-origin:50% 100%; pointer-events:auto; touch-action:none; z-index:3; cursor:grab; }
 .hand:active{ cursor:grabbing; }
-.hand.hour{   width:2.8%; height:30%; background:var(--mws-gold);  border-radius:6px; }
-.hand.minute{ width:2.0%; height:40%; background:var(--mws-pumpkin); border-radius:6px; }
-.hand.second{ width:1.2%; height:43%; background:var(--bg-orange); border-radius:6px; }
+.hand.hour{   width:var(--hand-hour);   height:30%; background:var(--mws-gold);  border-radius:6px; }
+.hand.minute{ width:var(--hand-minute); height:40%; background:var(--bg-orange); border-radius:6px; }
+.hand.second{ width:var(--hand-second); height:42%; background:var(--mws-pumpkin); border-radius:6px; }
 
 .cap{ position:absolute; left:50%; top:50%; width:5.2%; height:5.2%; transform:translate(-50%,-50%); background:#333; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,.25); z-index:4; }
 .leo-center{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:28%; height:auto; pointer-events:none; filter:drop-shadow(0 3px 6px rgba(0,0,0,.18)); z-index:5; }
 
 .hidden{ display:none !important; }
 
-/* ==================  FEEDBACK & CONFETTI  ================== */
+/* =============== FEEDBACK & CONFETTI =============== */
 .feedback-clip{ position:absolute; inset:6%; border-radius:50%; pointer-events:none; z-index:6; display:grid; place-items:center; overflow:hidden; }
 .feedback-burst{
-  position:absolute; 
-  left:50%; 
-  top:50%;
+  position:absolute; left:50%; top:50%;
   transform:translate(-50%,-50%) scale(.2);
-  color:#fff; 
-  font-weight:900;
+  color:#fff; font-weight:900;
   background:rgba(0,0,0,.35);
-  padding:.3em .6em; 
-  border-radius:12px; 
-  opacity:0;
-  font-size: clamp(20px, 5vw, 52px);
-  letter-spacing: .02em;
-  text-shadow: 0 2px 4px rgba(0,0,0,.25);
-  white-space: nowrap; /* без переноса */
-  text-align: center;
-  max-width: 100%;
+  padding:.3em .6em; border-radius:12px; opacity:0;
+  font-size: clamp(22px, 5vw, 52px);
+  letter-spacing:.02em; text-shadow:0 2px 4px rgba(0,0,0,.25);
+  white-space: nowrap; text-align:center; max-width:100%;
 }
 .feedback-burst.play{ animation: fb 900ms ease-out forwards; }
 @keyframes fb{
-  0%  { opacity:0; transform:translate(-50%,-50%) scale(.25) }
-  35% { opacity:1; transform:translate(-50%,-50%) scale(1.08) }
-  60% { opacity:1; transform:translate(-50%,-50%) scale(1.00) }
-  100%{ opacity:0; transform:translate(-50%,-50%) scale(.9) }
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.2)}
+  35%{opacity:1; transform:translate(-50%,-50%) scale(1.05)}
+  60%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(.9)}
 }
 .feedback-burst.error{ background: rgba(200,0,0,.42); }
 
 .confetti-wrap{ position:absolute; inset:6%; border-radius:50%; overflow:hidden; pointer-events:none; z-index:6; }
 .confetti-canvas{ width:100%; height:100%; display:block; }
 
-/* ==================  CONTROLS UNDER CLOCK  ================== */
-/* Ширина и выравнивание строго по квадрату */
-.controls-row{
+/* =============== CONTROLS UNDER CLOCK =============== */
+.controls-wrap{
   width: var(--card-size);
   margin: 10px auto 0;
+  position: relative;
+  z-index: 2; /* выше карточки — ничего не перекроется */
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr 1fr 1fr;
   align-items: center;
-  column-gap: 16px;
+  column-gap: 12px;
+  row-gap: 10px; /* будет использовано только на мобилках при переносе */
 }
-.controls-row .mode-switch{   justify-self: start; }
-.controls-row .train-switch{  justify-self: center; }
-.controls-row .task-actions{  justify-self: end; }
 
-/* «таблетки» — по ширине текста, не тянем */
+.controls-row{ justify-self: start; }
+.controls-row.center{ justify-self: center; }
+.controls-row.right{ justify-self: end; }
+
+/* «таблетки» */
 .pill-switch{
-  display:inline-flex;
-  align-items:center;
-  gap:8px;
+  display:inline-flex; align-items:center; gap:8px;
   background: rgba(255,255,255,.18);
   border: 1px solid rgba(255,255,255,.35);
   border-radius: 999px;
   padding: 4px;
-  width: max-content;
 }
 .pill-switch button{
   appearance:none; border:0; background:transparent; color:#fff;
@@ -203,34 +209,46 @@ body{
 .pill-switch.disabled{ opacity:.45; pointer-events:none; }
 
 /* сообщение о задании */
-.task-msg-row{ width: var(--card-size); margin:6px auto 0; text-align:center; color:#fff; font-weight:700; }
+.task-msg-row{ margin-top:8px; text-align:center; color:#fff; font-weight:700; }
 .task-msg-row .task-target{ margin-bottom:4px; }
 .task-msg-row .task-title{ opacity:.9; margin-right:4px; }
 
-/* Мобилки и планшеты: всё — в столбик */
+/* Мобилки: складываем пилюли в колонку */
 @media (max-width: 700px){
-  .clock-shell,
-  .digital-wrap,
+  .controls-wrap{
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
   .controls-row,
-  .task-msg-row{
-    width: min(96vw, var(--card-size));
-  }
-  .controls-row{
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-  }
+  .controls-row.center,
+  .controls-row.right{ justify-self: center; }
 }
 
-/* компактнее по высоте */
+/* низкие экраны — чуть компактнее по высоте */
 @media (max-height: 700px){
   :root{ --card-size: min(94vw, 740px, calc(100svh - 180px)); }
   .digital{ font-size: clamp(18px, 4vw, 30px); }
   .mws-title{ font-size: clamp(18px, 2.8vw, 26px); }
 }
 
-/* совсем узкие телефоны */
+/* очень узкие телефоны */
 @media (max-width: 360px){
   .main-wrap{ padding:6px 10px 10px; }
 }
+/* ПК/планшеты в альбомной ориентации */
+@media (min-width: 900px){
+  :root{
+    --hand-hour:   clamp(24px, 0.6vw, 14px);
+    --hand-minute: clamp(18px, 0.5vw, 12px);
+    --hand-second: clamp(3px, 0.4vw, 10px);
+  }
+}
+@media (max-width: 700px){
+  :root{
+    --hand-hour:   clamp(4px, 1.2vw, 10px);
+    --hand-minute: clamp(3px, 1.0vw, 9px);
+    --hand-second: clamp(2px, 0.9vw, 8px);
+  }
+}
+
+
