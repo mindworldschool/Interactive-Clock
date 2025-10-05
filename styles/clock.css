@@ -1,16 +1,23 @@
+/* ==================  VARIABLES  ================== */
 :root{
-  --bg-orange: #EC8D00;   /* фон всего экрана */
+  --bg-orange: #EC8D00;   /* фон */
   --card-beige: #FDF8F3;  /* квадрат */
   --mws-gold:   #B68E6B;  /* ободок и деления */
   --mws-pumpkin:#E8654B;  /* минутная стрелка */
-  --mws-moss:   #7D733A;  /* цифры 1–12 */
+  --mws-moss:   #7D733A;  /* цифры 1-12 */
   --mws-coral:  #EC8D00;  /* верхняя панель, подписи минут */
-  --mws-gray:   #C6B9A2;  /* вспомогательный серый */
-  --card-size:  min(92vw, 780px);
+  --mws-gray:   #C6B9A2;  /* тон делений */
+
+  /* размер карточки ограничиваем и шириной, и высотой окна */
+  --card-size: min(92vw, 780px, calc(100svh - 220px));
+}
+@supports not (height: 100svh) {
+  :root{ --card-size: min(92vw, 780px, calc(100vh - 220px)); }
 }
 
-*{box-sizing:border-box}
-html,body{height:100%}
+/* ==================  BASE  ================== */
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
 body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
@@ -18,47 +25,54 @@ body{
   color:#222;
 }
 
-/* Top bar */
+/* ==================  TOP BAR  ================== */
 .mws-topbar{
   position:sticky; top:0; z-index:10;
-  background: var(--mws-coral);
-  color:#fff;
+  background: var(--mws-coral); color:#fff;
   display:flex; align-items:center; justify-content:space-between;
   padding: clamp(8px, 1.8vw, 16px) clamp(12px, 2.4vw, 24px);
   box-shadow: 0 4px 16px rgba(0,0,0,.12);
 }
-.mws-left, .mws-center, .mws-right{display:flex; align-items:center; gap:12px}
+.mws-left,.mws-center,.mws-right{display:flex; align-items:center; gap:12px}
 .mws-center{justify-content:center; flex:1; text-align:center}
-.mws-logo{height:clamp(40px,6vw,72px);width:auto;display:block;filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));}
-.mws-title{font-weight:800;letter-spacing:.3px;font-size:clamp(22px,3.5vw,36px);}
+.mws-logo{height:clamp(28px,4.2vw,44px); width:auto; display:block; filter:drop-shadow(0 2px 4px rgba(0,0,0,.15));}
+.mws-title{font-weight:800; letter-spacing:.3px; font-size:clamp(18px,3vw,28px);}
 .lang-switch{display:inline-flex; gap:6px; background: rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.35); border-radius:999px; padding:4px;}
 .lang-switch button{appearance:none; border:0; background:transparent; color:#fff; padding:6px 10px; border-radius:999px; font-weight:700; cursor:pointer; font-size: clamp(12px, 2vw, 14px);}
 .lang-switch button.active{ background:#fff; color:#c24f00; }
 
-/* Layout / разрывы уменьшены до минимума */
-.main-wrap{ min-height: calc(100dvh - 64px); display:flex; align-items:flex-start; justify-content:center; padding: clamp(6px, .8vw, 12px) 16px 16px; }
-.clock-shell{ width: var(--card-size); display:flex; flex-direction:column; align-items:center; gap: clamp(2px, .6vw, 8px); }
-
-/* Электронные часы */
-.digital-wrap{ width:100%; display:flex; justify-content:center; }
-.digital{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  font-size: clamp(24px, 5.2vw, 44px);
-  color: #ffffff;
-  text-shadow: 0 3px 8px rgba(0,0,0,.35);
-  padding: .2em .6em;
-  border-radius: .6em;
-  background: rgba(0,0,0,.18);
-  border: 2px solid rgba(255,255,255,.25);
-  box-shadow: inset 0 4px 12px rgba(0,0,0,.2);
+/* ==================  LAYOUT  ================== */
+.main-wrap{
+  min-height:auto;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding: 8px 16px 12px;
+}
+.clock-shell{
+  width: var(--card-size);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap: 8px;
 }
 
-/* Карточка */
+/* Электронные часы */
+.digital{
+  background: rgba(0,0,0,.15);
+  color:#fff;
+  padding: 8px 16px;
+  border-radius: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  font-size: clamp(20px, 4.2vw, 32px);
+  backdrop-filter: blur(2px);
+}
+
+/* ==================  CLOCK CARD  ================== */
 .clock-card{
   width: var(--card-size);
-  aspect-ratio: 1/1;
+  aspect-ratio: 1 / 1;
   background: var(--card-beige);
   border: 2px solid var(--mws-gold);
   border-radius: 28px;
@@ -68,9 +82,9 @@ body{
   display:grid; place-items:center;
   padding: clamp(10px, 2.2vw, 20px);
 }
+.clock-scale{ width:100%; height:100%; position:relative; }
 
-/* Циферблат */
-.clock-scale{ width: 100%; height: 100%; position: relative; }
+/* белый циферблат */
 .face{
   position:absolute; inset:6%;
   border-radius:50%;
@@ -80,133 +94,142 @@ body{
   z-index:1;
 }
 
-.mlabel{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); color: var(--mws-coral); font-weight:800; z-index:2; user-select:none; }
-.num{ position:absolute; left:50%; top:50%; display:flex; align-items:center; justify-content:center; font-weight:800; color: var(--mws-moss); transform: translate(-50%, -50%); user-select:none; z-index:2; }
-.num24{ position:absolute; left:50%; top:50%; transform: translate(-50%, -50%); color:#B5AA96; font-weight:600; z-index:2; user-select:none; }
-
-/* Деления — все цвета ободка */
+/* ==================  DELENIYA & NUMBERS  ================== */
 .tick{ position:absolute; left:50%; top:50%; width:0; height:0; transform-origin: 0 0; z-index:2; }
-.tick::after{ content:""; display:block; width: 11px; height: 3px; background: var(--mws-gold); transform: translate(-6px, -100%); border-radius: 2px; }
-.tick.major::after{ width: 15px; height: 8px; transform: translate(-14px, -100%); }
-
-/* Стрелки */
-.hand{ position:absolute; left:50%; top:50%; transform-origin: 50% 100%; pointer-events:auto; touch-action:none; z-index:3; cursor:grab; }
-.hand:active{ cursor:grabbing; }
-.hand.hour{ width: 2.8%; height: 30%; background: var(--mws-gold); border-radius: 6px; }
-.hand.minute{ width: 2%; height: 40%; background: var(--mws-pumpkin); border-radius: 6px; }
-.hand.second{ width: 1.2%; height: 43%; background: var(--mws-coral); border-radius: 6px; }
-.cap{ position:absolute; left:50%; top:50%; width: 5.2%; height:5.2%; transform: translate(-50%,-50%); background:#333; border-radius:50%; box-shadow: 0 2px 6px rgba(0,0,0,.25); z-index:4; }
-.leo-center{ position:absolute; left:50%; top:50%; transform: translate(-50%,-50%); width: 28%; height: auto; pointer-events:none; filter: drop-shadow(0 3px 6px rgba(0,0,0,.18)); z-index:5; }
-
-.hidden{display:none !important}
-
-/* Полоса управления */
-.controls-row{
-  width: var(--card-size);
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  margin-top: clamp(6px, 1vw, 10px);
+.tick::after{
+  content:""; display:block;
+  width: 11px; height: 3px; background: var(--mws-gold);
+  transform: translate(-6px, -100%); border-radius: 2px;
 }
-.controls-row > .mode-switch{ justify-self: center; }
-.controls-row > .train-switch{ justify-self: center; }
-.controls-row > .task-actions{ justify-self: end; }
+.tick.major::after{ width:15px; height:8px; transform: translate(-14px,-100%); }
 
-/* Сообщения/цель */
-.task-msg-row{
-  width: var(--card-size);
+.mlabel{
+  position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
+  color: var(--mws-coral); font-weight:800; z-index:2; user-select:none;
+}
+.num{
+  position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
+  display:flex; align-items:center; justify-content:center; font-weight:800;
+  color:var(--mws-moss); z-index:2; user-select:none;
+}
+.num24{
+  position:absolute; left:50%; top:50%; transform: translate(-50%,-50%);
+  color:#B5AA96; font-weight:600; z-index:2; user-select:none;
+}
+
+/* ==================  HANDS  ================== */
+.hand{ position:absolute; left:50%; top:50%; transform-origin:50% 100%; pointer-events:auto; touch-action:none; z-index:3; cursor:grab; }
+.hand:active{ cursor:grabbing; }
+.hand.hour{   width:2.8%; height:30%; background:var(--mws-gold);  border-radius:6px; }
+.hand.minute{ width:2.0%; height:40%; background:var(--mws-pumpkin); border-radius:6px; }
+.hand.second{ width:1.2%; height:43%; background:var(--bg-orange); border-radius:6px; }
+
+.cap{ position:absolute; left:50%; top:50%; width:5.2%; height:5.2%; transform:translate(-50%,-50%); background:#333; border-radius:50%; box-shadow:0 2px 6px rgba(0,0,0,.25); z-index:4; }
+.leo-center{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:28%; height:auto; pointer-events:none; filter:drop-shadow(0 3px 6px rgba(0,0,0,.18)); z-index:5; }
+
+.hidden{ display:none !important; }
+
+/* ==================  FEEDBACK & CONFETTI  ================== */
+.feedback-clip{ position:absolute; inset:6%; border-radius:50%; pointer-events:none; z-index:6; display:grid; place-items:center; overflow:hidden; }
+.feedback-burst{
+  position:absolute; 
+  left:50%; 
+  top:50%;
+  transform:translate(-50%,-50%) scale(.2);
+  color:#fff; 
+  font-weight:900;
+  background:rgba(0,0,0,.35);
+  padding:.3em .6em; 
+  border-radius:12px; 
+  opacity:0;
+  font-size: clamp(20px, 5vw, 52px);
+  letter-spacing: .02em;
+  text-shadow: 0 2px 4px rgba(0,0,0,.25);
+  white-space: nowrap; /* ✅ не переносить текст */
+  text-align: center;
+  max-width: 100%;
+}
+.feedback-burst.play{ 
+  animation: fb 900ms ease-out forwards; 
+}
+@keyframes fb{
+  0%  { opacity:0; transform:translate(-50%,-50%) scale(.25) }
+  35% { opacity:1; transform:translate(-50%,-50%) scale(1.08) }
+  60% { opacity:1; transform:translate(-50%,-50%) scale(1.00) }
+  100%{ opacity:0; transform:translate(-50%,-50%) scale(.9) }
+}
+
+.feedback-burst.error{ background: rgba(200,0,0,.42); }
+@keyframes fb{
+  0%{opacity:0; transform:translate(-50%,-50%) scale(.2)}
+  35%{opacity:1; transform:translate(-50%,-50%) scale(1.05)}
+  60%{opacity:1; transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0; transform:translate(-50%,-50%) scale(.9)}
+}
+
+.confetti-wrap{ position:absolute; inset:6%; border-radius:50%; overflow:hidden; pointer-events:none; z-index:6; }
+.confetti-canvas{ width:100%; height:100%; display:block; }
+
+/* ==================  CONTROLS UNDER CLOCK  ================== */
+.controls-row{
+  width:100%;
   display:grid;
-  grid-template-columns: 1fr;
-  justify-items:center;
-  row-gap: 6px;
+  grid-template-columns: 1fr auto auto;
+  align-items:center;
+  gap: 10px 16px;
   margin-top: 6px;
 }
-.task-msg-row .task-target{ color:#fff; font-weight:800; }
-.task-msg-row .task-msg{ color:#fff; font-weight:800; }
+/* левый переключатель — не растягивать */
+.controls-row .mode-switch{ justify-self: start; }
 
-/* Унифицированная «пилюля» */
+/* центр — блок со «Свободно / Завдання» */
+.controls-row .train-switch{ justify-self:center; }
+
+/* правый край — кнопки «Нове завдання / Перевірка» */
+.controls-row .task-actions{ justify-self:end; }
+
+/* «таблетки» */
 .pill-switch{
   display:inline-flex;
-  gap:6px;
+  align-items:center;
+  gap:8px;
   background: rgba(255,255,255,.18);
-  border:1px solid rgba(255,255,255,.35);
-  border-radius:999px;
-  padding:4px;
-  backdrop-filter: blur(3px);
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 999px;
+  padding: 4px;
 }
 .pill-switch button{
   appearance:none; border:0; background:transparent; color:#fff;
-  padding:6px 10px; border-radius:999px; font-weight:700;
-  cursor:pointer; font-size: clamp(12px, 2vw, 14px);
+  padding:6px 12px; border-radius:999px; font-weight:700; cursor:pointer;
+  font-size: clamp(12px, 2vw, 14px); white-space:nowrap;
 }
 .pill-switch button.active{ background:#fff; color:#c24f00; }
+.pill-switch.disabled{ opacity:.45; pointer-events:none; }
 
-/* Отключено */
-.pill-switch.disabled{ opacity:.45; pointer-events:none; filter:grayscale(20%); }
+/* сообщение о задании */
+.task-msg-row{ margin-top:6px; text-align:center; color:#fff; font-weight:700; }
+.task-msg-row .task-target{ margin-bottom:4px; }
+.task-msg-row .task-title{ opacity:.9; margin-right:4px; }
 
-/* Кнопки задания выглядят как пилюля */
-.task-actions{ display:inline-flex; }
-.task-actions button{ background:transparent; color:#fff; border:0; }
-.task-actions .btn-check{ border-left:1px solid rgba(255,255,255,.35); }
-
-/* Responsive stacking */
-@media (max-width: 560px){
-  .controls-row{ grid-template-columns: 1fr; row-gap: 8px; justify-items:center; }
-  .controls-row > .task-actions{ justify-self: center; }
+/* Адаптация под узкие экраны: кнопки становятся столбцом */
+@media (max-width: 700px){
+  .controls-row{
+    grid-template-columns: 1fr;
+    justify-items:center;
+  }
+  .controls-row .task-actions{ justify-self:center; }
+  .clock-shell{ gap: 10px; }
 }
 
-
-/* Клип для вспышки текста (SUPER!/Попробуй ещё раз) */
-.feedback-clip{
-  position:absolute; inset:6%;
-  border-radius:50%; overflow:hidden;
-  pointer-events:none; z-index:6;
+/* ещё компактнее по высоте */
+@media (max-height: 700px){
+  :root{ --card-size: min(94vw, 740px, calc(100svh - 180px)); }
+  .digital{ font-size: clamp(18px, 4vw, 30px); }
+  .mws-title{ font-size: clamp(18px, 2.8vw, 26px); }
 }
 
-/* Круглый контейнер для конфетти */
-.confetti-wrap{
-  position:absolute; inset:6%;
-  border-radius:50%; overflow:hidden;
-  pointer-events:none; z-index:7; /* над стрелками */
+/* совсем узкие телефоны */
+@media (max-width: 360px){
+  .main-wrap{ padding:6px 10px 10px; }
+  .clock-shell{ gap:6px; }
 }
-.confetti-canvas{ width:100%; height:100%; display:block; }
-
-/* Вспышка текста из центра */
-.feedback-burst{
-  position:absolute; left:50%; top:50%;
-  transform:translate(-50%,-50%) scale(0.2);
-  font-weight:900; font-size:clamp(24px,8vw,64px);
-  line-height:1; white-space:nowrap;
-  color:#0a7b0a; text-shadow:0 3px 14px rgba(0,0,0,.35);
-  opacity:0;
-}
-.feedback-burst.error{ color:#a31212; }
-@keyframes burstScale{
-  0%{transform:translate(-50%,-50%) scale(0.2);opacity:0;}
-  12%{opacity:1;}
-  75%{transform:translate(-50%,-50%) scale(1.0);opacity:1;}
-  100%{transform:translate(-50%,-50%) scale(1.0);opacity:0;}
-}
-.feedback-burst.play{ animation:burstScale 900ms cubic-bezier(.2,.8,.16,1) forwards; }
-
-
-/* re-append feedback and disabled to ensure present */
-
-/* Tighten spacing between title and digital */
-.main-wrap{ padding-top: clamp(4px,.6vw,8px); }
-.clock-shell{ gap: clamp(2px, .6vw, 8px); }
-
-
-
-/* circular clip for confetti over dial */
-.confetti-clip{
-  position:absolute;
-  inset:6%;
-  border-radius:50%;
-  overflow:hidden; /* visually clip, canvas will paint full but container masks */
-  pointer-events:none;
-  z-index:7; /* above feedback text; tweak as you wish */
-}
-
-.main-wrap{ padding-top: 8px; }
-.clock-card{ margin-bottom: 8px; }
