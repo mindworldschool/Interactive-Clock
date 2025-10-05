@@ -245,8 +245,8 @@ body{
 }
 @media (max-width: 700px){
   :root{
-    --hand-hour:   clamp(20px, 1.2vw, 10px);
-    --hand-minute: clamp(14px, 1.0vw, 9px);
+    --hand-hour:   clamp(18px, 1.2vw, 10px);
+    --hand-minute: clamp(10px, 1.0vw, 9px);
     --hand-second: clamp(2px, 0.9vw, 8px);
   }
 }
