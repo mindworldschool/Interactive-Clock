@@ -17,12 +17,12 @@
 
 /* ==================  BASE  ================== */
 *{ box-sizing:border-box; }
-html,body{ height:100%; }
+html,body{ height:100%; margin:0; padding:0; }
 body{
-  margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
   background: var(--bg-orange);
   color:#222;
+  overflow-x: hidden;
 }
 
 /* ==================  TOP BAR  ================== */
@@ -43,21 +43,28 @@ body{
 
 /* ==================  LAYOUT  ================== */
 .main-wrap{
-  min-height:auto;
-  display:flex;
-  align-items:flex-start;
-  justify-content:center;
-  padding: 8px 16px 12px;
-}
-.clock-shell{
-  width: var(--card-size);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 12px 12px 16px;
+  gap: 10px;
 }
 
-/* Электронные часы */
+/* Оболочка — по ширине квадрата */
+.clock-shell{
+  width: var(--card-size);
+  max-width: var(--card-size);
+  margin: 0 auto;
+}
+
+/* Электронные часы — центрируем и «привязываем» к ширине квадрата */
+.digital-wrap{
+  width: var(--card-size);
+  margin: 6px auto 0;
+  display: grid;
+  place-items: center;
+}
 .digital{
   background: rgba(0,0,0,.15);
   color:#fff;
@@ -81,6 +88,7 @@ body{
   overflow:hidden;
   display:grid; place-items:center;
   padding: clamp(10px, 2.2vw, 20px);
+  margin: 6px auto;
 }
 .clock-scale{ width:100%; height:100%; position:relative; }
 
@@ -145,50 +153,37 @@ body{
   font-size: clamp(20px, 5vw, 52px);
   letter-spacing: .02em;
   text-shadow: 0 2px 4px rgba(0,0,0,.25);
-  white-space: nowrap; /* ✅ не переносить текст */
+  white-space: nowrap; /* без переноса */
   text-align: center;
   max-width: 100%;
 }
-.feedback-burst.play{ 
-  animation: fb 900ms ease-out forwards; 
-}
+.feedback-burst.play{ animation: fb 900ms ease-out forwards; }
 @keyframes fb{
   0%  { opacity:0; transform:translate(-50%,-50%) scale(.25) }
   35% { opacity:1; transform:translate(-50%,-50%) scale(1.08) }
   60% { opacity:1; transform:translate(-50%,-50%) scale(1.00) }
   100%{ opacity:0; transform:translate(-50%,-50%) scale(.9) }
 }
-
 .feedback-burst.error{ background: rgba(200,0,0,.42); }
-@keyframes fb{
-  0%{opacity:0; transform:translate(-50%,-50%) scale(.2)}
-  35%{opacity:1; transform:translate(-50%,-50%) scale(1.05)}
-  60%{opacity:1; transform:translate(-50%,-50%) scale(1)}
-  100%{opacity:0; transform:translate(-50%,-50%) scale(.9)}
-}
 
 .confetti-wrap{ position:absolute; inset:6%; border-radius:50%; overflow:hidden; pointer-events:none; z-index:6; }
 .confetti-canvas{ width:100%; height:100%; display:block; }
 
 /* ==================  CONTROLS UNDER CLOCK  ================== */
+/* Ширина и выравнивание строго по квадрату */
 .controls-row{
-  width:100%;
-  display:grid;
-  grid-template-columns: 1fr auto auto;
-  align-items:center;
-  gap: 10px 16px;
-  margin-top: 6px;
+  width: var(--card-size);
+  margin: 10px auto 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  column-gap: 16px;
 }
-/* левый переключатель — не растягивать */
-.controls-row .mode-switch{ justify-self: start; }
+.controls-row .mode-switch{   justify-self: start; }
+.controls-row .train-switch{  justify-self: center; }
+.controls-row .task-actions{  justify-self: end; }
 
-/* центр — блок со «Свободно / Завдання» */
-.controls-row .train-switch{ justify-self:center; }
-
-/* правый край — кнопки «Нове завдання / Перевірка» */
-.controls-row .task-actions{ justify-self:end; }
-
-/* «таблетки» */
+/* «таблетки» — по ширине текста, не тянем */
 .pill-switch{
   display:inline-flex;
   align-items:center;
@@ -197,6 +192,7 @@ body{
   border: 1px solid rgba(255,255,255,.35);
   border-radius: 999px;
   padding: 4px;
+  width: max-content;
 }
 .pill-switch button{
   appearance:none; border:0; background:transparent; color:#fff;
@@ -207,21 +203,27 @@ body{
 .pill-switch.disabled{ opacity:.45; pointer-events:none; }
 
 /* сообщение о задании */
-.task-msg-row{ margin-top:6px; text-align:center; color:#fff; font-weight:700; }
+.task-msg-row{ width: var(--card-size); margin:6px auto 0; text-align:center; color:#fff; font-weight:700; }
 .task-msg-row .task-target{ margin-bottom:4px; }
 .task-msg-row .task-title{ opacity:.9; margin-right:4px; }
 
-/* Адаптация под узкие экраны: кнопки становятся столбцом */
+/* Мобилки и планшеты: всё — в столбик */
 @media (max-width: 700px){
-  .controls-row{
-    grid-template-columns: 1fr;
-    justify-items:center;
+  .clock-shell,
+  .digital-wrap,
+  .controls-row,
+  .task-msg-row{
+    width: min(96vw, var(--card-size));
   }
-  .controls-row .task-actions{ justify-self:center; }
-  .clock-shell{ gap: 10px; }
+  .controls-row{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
 }
 
-/* ещё компактнее по высоте */
+/* компактнее по высоте */
 @media (max-height: 700px){
   :root{ --card-size: min(94vw, 740px, calc(100svh - 180px)); }
   .digital{ font-size: clamp(18px, 4vw, 30px); }
@@ -231,5 +233,4 @@ body{
 /* совсем узкие телефоны */
 @media (max-width: 360px){
   .main-wrap{ padding:6px 10px 10px; }
-  .clock-shell{ gap:6px; }
 }
