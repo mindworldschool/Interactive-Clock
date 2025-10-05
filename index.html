@@ -26,21 +26,20 @@
 
   <main class="main-wrap">
     <div class="clock-shell">
-
-      <!-- Електронні години -->
+      <!-- Электронные часы -->
       <div class="digital-wrap">
         <span id="digitalTime" class="digital">--:--:--</span>
       </div>
 
-      <!-- Карточка з годинником -->
+      <!-- Карточка с часами -->
       <section class="clock-card">
         <div class="clock-scale">
           <div class="face"></div>
 
-          <!-- шар для спливаючих написів -->
+          <!-- слой для всплывающих надписей -->
           <div class="feedback-clip"></div>
 
-          <!-- конфетті, обрізане колом -->
+          <!-- конфетти, обрезанное кругом -->
           <div class="confetti-wrap"><canvas class="confetti-canvas"></canvas></div>
 
           <div class="hand hour"  title="Hour hand"></div>
@@ -51,22 +50,19 @@
         </div>
       </section>
 
-      <!-- Управління під квадратом -->
-      <div class="controls-row">
-        <!-- ліво: Обычный/Тренировка -->
-        <div class="mode-switch pill-switch" aria-label="Режим годинника">
+      <!-- Управления под квадратом -->
+      <div class="controls-wrap">
+        <div class="controls-row left  mode-switch  pill-switch" aria-label="Режим годинника">
           <button type="button" class="active" data-mode="current">Звичайний</button>
           <button type="button" data-mode="training">Тренування</button>
         </div>
 
-        <!-- центр: Вільно/Завдання -->
-        <div class="train-switch pill-switch" role="tablist">
+        <div class="controls-row center train-switch pill-switch" role="tablist">
           <button type="button" class="active" data-train="free">Вільно</button>
           <button type="button" data-train="task">Завдання</button>
         </div>
 
-        <!-- право: Нове завдання/Перевірка -->
-        <div class="task-actions pill-switch">
+        <div class="controls-row right task-actions pill-switch">
           <button type="button" class="btn-task">Нове завдання</button>
           <button type="button" class="btn-check">Перевірка</button>
         </div>
@@ -78,13 +74,12 @@
         </div>
         <div class="task-msg" aria-live="polite"></div>
       </div>
-
     </div>
   </main>
 
   <script src="scripts/clock.js"></script>
 
-  <!-- Аудіо -->
+  <!-- Аудио -->
   <audio id="sndTick"    src="sounds/tick.mp3" preload="auto" loop playsinline></audio>
   <audio id="sndClick1"  src="sounds/click.mp3" preload="auto" playsinline></audio>
   <audio id="sndClick2"  src="sounds/click.mp3" preload="auto" playsinline></audio>
