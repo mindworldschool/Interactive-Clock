@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Интерактивные часы — MindWorld School</title>
+  <title>Інтерактивний годинник — MindWorld School</title>
   <link rel="stylesheet" href="styles/clock.css">
 </head>
 <body>
@@ -12,11 +12,11 @@
       <img src="assets/logo_1024x1024_transparent.png" alt="MindWorld School" class="mws-logo">
     </div>
     <div class="mws-center">
-      <div class="mws-title">Интерактивные часы</div>
+      <div class="mws-title">Інтерактивний годинник</div>
     </div>
     <div class="mws-right">
       <div class="lang-switch">
-        <button type="button" data-lang="ua">UA</button>
+        <button type="button" data-lang="ua" class="active">UA</button>
         <button type="button" data-lang="en">EN</button>
         <button type="button" data-lang="ru">RU</button>
         <button type="button" data-lang="es">ES</button>
@@ -35,9 +35,12 @@
       <section class="clock-card">
         <div class="clock-scale">
           <div class="face"></div>
+
+          <!-- слой для всплывающих надписей -->
           <div class="feedback-clip"></div>
-          <div class="confetti-wrap">
-          <canvas class="confetti-canvas"></canvas></div>
+
+          <!-- конфетти, обрезанное кругом -->
+          <div class="confetti-wrap"><canvas class="confetti-canvas"></canvas></div>
 
           <div class="hand hour"  title="Hour hand"></div>
           <div class="hand minute" title="Minute hand"></div>
@@ -47,26 +50,28 @@
         </div>
       </section>
 
-      <!-- Полоса управления под квадратом -->
+      <!-- Управления под квадратом -->
       <div class="controls-row">
-        <div class="mode-switch pill-switch" aria-label="Режим часов">
-          <button type="button" class="active" data-mode="current">Обычный</button>
-          <button type="button" data-mode="training">Тренировка</button>
+        <div class="mode-switch pill-switch" aria-label="Режим годинника">
+          <button type="button" class="active" data-mode="current">Звичайний</button>
+          <button type="button" data-mode="training">Тренування</button>
         </div>
 
         <div class="train-switch pill-switch" role="tablist">
-          <button type="button" class="active" data-train="free">Свободно</button>
-          <button type="button" data-train="task">Задание</button>
+          <button type="button" class="active" data-train="free">Вільно</button>
+          <button type="button" data-train="task">Завдання</button>
         </div>
 
         <div class="task-actions pill-switch">
-          <button type="button" class="btn-task">Новое задание</button>
-          <button type="button" class="btn-check">Проверка</button>
+          <button type="button" class="btn-task">Нове завдання</button>
+          <button type="button" class="btn-check">Перевірка</button>
         </div>
       </div>
 
       <div class="task-msg-row hidden">
-        <div class="task-target hidden"><span class="task-title">Задание:</span> <strong class="target-time">--:--</strong></div>
+        <div class="task-target hidden">
+          <span class="task-title">Завдання:</span> <strong class="target-time">--:--</strong>
+        </div>
         <div class="task-msg" aria-live="polite"></div>
       </div>
     </div>
@@ -74,17 +79,12 @@
 
   <script src="scripts/clock.js"></script>
 
-  <!-- Audio -->
-<audio id="sndTick"    src="sounds/tick.mp3" preload="auto" loop playsinline></audio>
-
-<!-- пул из 3 кликов, чтобы не “захлёбывались” -->
-<audio id="sndClick1"  src="sounds/click.mp3" preload="auto" playsinline></audio>
-<audio id="sndClick2"  src="sounds/click.mp3" preload="auto" playsinline></audio>
-<audio id="sndClick3"  src="sounds/click.mp3" preload="auto" playsinline></audio>
-
-<audio id="sndFanfare" src="sounds/fanfare.mp3" preload="auto" playsinline></audio>
-<audio id="sndFail"    src="sounds/fail.mp3" preload="auto" playsinline></audio>
-
-
+  <!-- Аудио -->
+  <audio id="sndTick"    src="sounds/tick.mp3" preload="auto" loop playsinline></audio>
+  <audio id="sndClick1"  src="sounds/click.mp3" preload="auto" playsinline></audio>
+  <audio id="sndClick2"  src="sounds/click.mp3" preload="auto" playsinline></audio>
+  <audio id="sndClick3"  src="sounds/click.mp3" preload="auto" playsinline></audio>
+  <audio id="sndFanfare" src="sounds/fanfare.mp3" preload="auto" playsinline></audio>
+  <audio id="sndFail"    src="sounds/fail.mp3" preload="auto" playsinline></audio>
 </body>
 </html>
