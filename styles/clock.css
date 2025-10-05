@@ -22,7 +22,7 @@
   --hand-second: clamp(1.5px, 0.18vw, 5px);
 }
 @supports not (height: 100svh) {
-  :root{ --card-size: min(92vw, 780px, calc(100vh - 220px)); }
+  :root{ --card-size: min(92vw, 780px, calc(100dvh - 260px)); }
 }
 
 /* =============== BASE =============== */
@@ -248,6 +248,15 @@ body{
     --hand-hour:   clamp(14px, 1.2vw, 10px);
     --hand-minute: clamp(8px, 1.0vw, 9px);
     --hand-second: clamp(2px, 0.9vw, 8px);
+  }
+}
+@media (max-width: 700px) {
+  :root {
+    /* уменьшаем высоту карточки, чтобы кнопки помещались */
+    --card-size: min(94vw, 680px, calc(100dvh - 320px));
+  }
+  .main-wrap {
+    padding-bottom: 80px; /* небольшой отступ, чтобы кнопки не упирались */
   }
 }
 
