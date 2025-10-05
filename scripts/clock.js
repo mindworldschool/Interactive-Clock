@@ -1,22 +1,21 @@
 (function(){
   const i18n = {
-   
     ua: { title: "Інтерактивний годинник" },
     en: { title: "Interactive Clock" },
     ru: { title: "Интерактивные часы" },
     es: { title: "Reloj interactivo" },
     labels: {
-      normal:   {ua:"Звичайний",   en:"Normal",  ru:"Обычный",     es:"Normal"},
-      training: {ua:"Тренування",  en:"Training",  ru:"Тренировка",   es:"Entrenamiento"},
-      free:     {ua:"Вільно",      en:"Free",   ru:"Свободно",      es:"Libre"},
-      task:     {ua:"Завдання",    en:"Task",   ru:"Задание",      es:"Tarea"}
+      normal:   {ua:"Звичайний",  en:"Normal",    ru:"Обычный",     es:"Normal"},
+      training: {ua:"Тренування", en:"Training",  ru:"Тренировка",  es:"Entrenamiento"},
+      free:     {ua:"Вільно",     en:"Free",      ru:"Свободно",    es:"Libre"},
+      task:     {ua:"Завдання",   en:"Task",      ru:"Задание",     es:"Tarea"}
     },
     ui: {
-      taskTitle:{ ua:"Завдання", en:"Task", ru:"Задание", es:"Tarea"},
-      newTask:{ ua:"Нове завдання", en:"New task", ru:"Новое задание", es:"Nueva tarea"},
-      check:{ ua:"Перевірка", en:"Check", ru:"Проверка", es:"Comprobar"},
-      ok:{ ua:"СУПЕР!", en:"SUPER!", ru:"SUPER!", es:"¡SUPER!"},
-      retry:{ ua:"Спробуй ще раз", en:"Try again", ru:"Попробуй ещё раз", es:"Inténtalo otra vez"}
+      taskTitle:{ua:"Завдання", en:"Task", ru:"Задание", es:"Tarea"},
+      newTask:  {ua:"Нове завдання", en:"New task", ru:"Новое задание", es:"Nueva tarea"},
+      check:    {ua:"Перевірка", en:"Check", ru:"Проверка", es:"Comprobar"},
+      ok:       {ua:"СУПЕР!", en:"SUPER!", ru:"SUPER!", es:"¡SUPER!"},
+      retry:    {ua:"Спробуй ще раз", en:"Try again", ru:"Попробуй ещё раз", es:"Inténtalo otra vez"}
     }
   };
 
@@ -26,7 +25,7 @@
     container: document.querySelector('.clock-scale'),
     face: document.querySelector('.face'),
     feedbackClip: document.querySelector('.feedback-clip'),
-    confettiWrap:   document.querySelector('.confetti-wrap'), 
+    confettiWrap:   document.querySelector('.confetti-wrap'),
     confettiCanvas: document.querySelector('.confetti-canvas'),
     hands: {
       hour: document.querySelector('.hand.hour'),
@@ -45,7 +44,7 @@
     taskMsg: document.querySelector('.task-msg-row .task-msg')
   };
 
-  // === AUDIO: пул кликов + тиканье/фанфары/ошибка ===
+  /* =============== AUDIO =============== */
   const sounds = {
     tick: document.getElementById('sndTick'),
     clickPool: [
@@ -57,32 +56,58 @@
     fail: document.getElementById('sndFail')
   };
   let clickIndex = 0;
+  let audioArmed = false;
+
+  function setVolumes(){
+    try{
+      if(sounds.tick)    sounds.tick.volume    = 0.35;
+      if(sounds.fanfare) sounds.fanfare.volume = 0.9;
+      if(sounds.fail)    sounds.fail.volume    = 0.9;
+      (sounds.clickPool||[]).forEach(a=>{ if(a) a.volume = 0.7; });
+    }catch(e){}
+  }
+  setVolumes();
+
+  function armAudioOnce(){
+    if(audioArmed) return;
+    audioArmed = true;
+    const pool = [sounds.tick, ...(sounds.clickPool||[]), sounds.fanfare, sounds.fail].filter(Boolean);
+    pool.forEach(a=>{
+      try{ a.currentTime = 0; a.play().then(()=>a.pause()).catch(()=>{}); }catch(e){}
+    });
+    // если уже в «обычном» — запустить тиканье
+    try{
+      if(sounds.tick && mode === 'current'){
+        sounds.tick.loop = true;
+        sounds.tick.currentTime = 0;
+        sounds.tick.play().catch(()=>{});
+      }
+    }catch(e){}
+  }
+  ['pointerdown','touchstart','mousedown','keydown'].forEach(ev=>{
+    document.addEventListener(ev, armAudioOnce, {once:false, passive:true});
+  });
+  dom.container?.addEventListener('pointerdown', armAudioOnce, {once:false});
 
   function playClick(){
-    if(!sounds.clickPool.length) return;
+    if(!sounds.clickPool.length || !audioArmed) return;
     const s = sounds.clickPool[clickIndex % sounds.clickPool.length];
     clickIndex++;
     try{ s.currentTime = 0; s.play(); }catch(e){}
   }
   function playSound(name){
+    if(!audioArmed) return;
     const s = sounds[name];
     if(!s) return;
     try{ s.currentTime = 0; s.play(); }catch(e){}
   }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible' && audioArmed){
+      try{ if(sounds.tick && mode === 'current'){ sounds.tick.play().catch(()=>{}); } }catch(e){}
+    }
+  });
 
-  /* iOS/Safari — разблокировка звука на первом касании */
-  const _unlockOnce = ()=>{
-    Object.values(sounds).forEach(v=>{
-      if(Array.isArray(v)) v.forEach(a=>{ try{ a.play().then(()=>a.pause()); }catch(e){} });
-      else { try{ v && v.play().then(()=>v.pause()); }catch(e){} }
-    });
-    document.removeEventListener('pointerdown', _unlockOnce);
-    document.removeEventListener('touchstart', _unlockOnce);
-  };
-  document.addEventListener('pointerdown', _unlockOnce, {once:true});
-  document.addEventListener('touchstart', _unlockOnce, {once:true});
-
-  // Language
+  /* =============== LANGUAGE =============== */
   let lang = localStorage.getItem('mws_lang') || 'ua';
   function setLang(l){
     lang = l in i18n ? l : 'ua';
@@ -103,9 +128,10 @@
   });
   setLang(lang);
 
-  // Build ticks & labels
+  /* =============== SCALE BUILD =============== */
   const ticks = [], minuteLabels = [], hourLabels = [], hour24Labels = [];
   const container = dom.container;
+
   function ensureBuilt(){
     if(ticks.length) return;
     for(let i=0;i<60;i++){
@@ -185,7 +211,7 @@
   window.addEventListener('resize', layoutAll);
   new ResizeObserver(layoutAll).observe(dom.face);
 
-  // Digital
+  /* =============== DIGITAL =============== */
   function pad(n){ return n<10 ? ('0'+n) : ''+n; }
   function setDigital(h, m, s){
     if(!dom.digital) return;
@@ -194,7 +220,7 @@
       : `${pad(h)}:${pad(m)}:${pad(s)}`;
   }
 
-  // Feedback
+  /* =============== FEEDBACK =============== */
   function showFeedback(text, ok = true){
     if(!dom.feedbackClip) return;
     const span = document.createElement('div');
@@ -205,9 +231,8 @@
     span.addEventListener('animationend', ()=> span.remove());
   }
 
-  // === Hands & drag ===
-  let lastAngle = { hour: 0, minute: 0 }; // для «трещётки»
-
+  /* =============== HANDS & DRAG =============== */
+  let lastAngle = { hour: 0, minute: 0 }; // «трещётка»
   function setAngle(el, deg){
     el.style.transform = `translate(-50%,-100%) rotate(${deg}deg)`;
     el.dataset.angle = deg;
@@ -237,14 +262,12 @@
       if(deg < 0) deg += 360;
       const snapped = step ? Math.round(deg/step)*step : deg;
 
-      // «трещётка»: щелчок при каждом шаге
       const key = el.classList.contains('hour') ? 'hour' : 'minute';
       const diff = Math.abs(snapped - lastAngle[key]);
       if(diff >= step - 0.001){
         playClick();
         lastAngle[key] = snapped;
       }
-
       setAngle(el, snapped);
     }
     function onUp(){ dragging = false; window.removeEventListener('pointermove', onMove); }
@@ -260,7 +283,7 @@
     });
   }
 
-  // === Confetti (из центра, обрезано кругом) ===
+  /* =============== CONFETTI =============== */
   function confettiBurst(){
     const canvas = dom.confettiCanvas;
     if(!canvas) return;
@@ -288,7 +311,7 @@
       const elapsed = t - start;
       ctx.clearRect(0,0,size,size);
       parts.forEach(p=>{
-        p.vy = (p.vy ?? -2) + 0.07; // «гравитация»
+        p.vy = (p.vy ?? -2) + 0.07;
         p.x += p.vx; p.y += p.vy;
         p.rot += p.vr;
         ctx.save();
@@ -298,15 +321,12 @@
         ctx.fillRect(-p.r, -p.r, p.r*2, p.r*2);
         ctx.restore();
       });
-      if(elapsed < 1300){
-        requestAnimationFrame(tick);
-      }else{
-        ctx.clearRect(0,0,size,size);
-      }
+      if(elapsed < 1300){ requestAnimationFrame(tick); }
+      else{ ctx.clearRect(0,0,size,size); }
     })(performance.now());
   }
 
-  // Modes
+  /* =============== MODES =============== */
   let timer = null;
   function stopTimer(){
     if(timer){ clearInterval(timer); timer=null; }
@@ -315,7 +335,13 @@
   function startRealtime(){
     stopTimer();
     dom.hands.second.classList.remove('hidden');
-    try{ if(sounds.tick){ sounds.tick.currentTime = 0; sounds.tick.loop = true; sounds.tick.play(); } }catch(e){}
+    try{
+      if(sounds.tick && audioArmed){
+        sounds.tick.currentTime = 0;
+        sounds.tick.loop = true;
+        sounds.tick.play().catch(()=>{});
+      }
+    }catch(e){}
     timer = setInterval(()=>{
       const d = new Date();
       const s = d.getSeconds() + d.getMilliseconds()/1000;
@@ -389,28 +415,28 @@
     }
   });
 
-  // i18n labels
+  /* =============== i18n labels =============== */
   function applyModeLabels(){
     if(dom.modeSwitch){
       const b1 = dom.modeSwitch.querySelector('button[data-mode="current"]');
       const b2 = dom.modeSwitch.querySelector('button[data-mode="training"]');
-      if(b1) b1.textContent = i18n.labels.normal[lang] || i18n.labels.normal.ru;
-      if(b2) b2.textContent = i18n.labels.training[lang] || i18n.labels.training.ru;
+      if(b1) b1.textContent = i18n.labels.normal[lang] || i18n.labels.normal.ua;
+      if(b2) b2.textContent = i18n.labels.training[lang] || i18n.labels.training.ua;
     }
     if(dom.trainSwitch){
       const f = dom.trainSwitch.querySelector('button[data-train="free"]');
       const t = dom.trainSwitch.querySelector('button[data-train="task"]');
-      if(f) f.textContent = i18n.labels.free[lang] || i18n.labels.free.ru;
-      if(t) t.textContent = i18n.labels.task[lang] || i18n.labels.task.ru;
+      if(f) f.textContent = i18n.labels.free[lang] || i18n.labels.free.ua;
+      if(t) t.textContent = i18n.labels.task[lang] || i18n.labels.task.ua;
     }
   }
   function applyTaskLabels(){
-    if(dom.taskTitle) dom.taskTitle.textContent = (i18n.ui.taskTitle[lang] || i18n.ui.taskTitle.ru) + ':';
-    if(dom.taskNew)   dom.taskNew.textContent   = i18n.ui.newTask[lang] || i18n.ui.newTask.ru;
-    if(dom.taskCheck) dom.taskCheck.textContent = i18n.ui.check[lang]   || i18n.ui.check.ru;
+    if(dom.taskTitle) dom.taskTitle.textContent = (i18n.ui.taskTitle[lang] || i18n.ui.taskTitle.ua) + ':';
+    if(dom.taskNew)   dom.taskNew.textContent   = i18n.ui.newTask[lang] || i18n.ui.newTask.ua;
+    if(dom.taskCheck) dom.taskCheck.textContent = i18n.ui.check[lang]   || i18n.ui.check.ua;
   }
 
-  // Task logic
+  /* =============== TASKS =============== */
   let target = null;
   function randomTask(){
     let h = Math.floor(Math.random()*13);
@@ -423,9 +449,8 @@
   }
   function checkAnswer(){
     if(trainMode === 'task' && !target){
-      // если цели нет — создаём и показываем, чтобы не было "ничего не происходит"
       randomTask();
-      showFeedback(i18n.ui.taskTitle[lang] || i18n.ui.taskTitle.ru, false);
+      showFeedback(i18n.ui.taskTitle[lang] || i18n.ui.taskTitle.ua, false);
       return;
     }
     const mdeg = parseFloat(dom.hands.minute.dataset.angle)||0;
@@ -434,19 +459,15 @@
     let hh = Math.round(hdeg/30) % 12; if(hh===0) hh=12;
 
     const ok = target ? (mm === target.m && hh === target.h) : false;
-    showFeedback(ok ? (i18n.ui.ok[lang]||i18n.ui.ok.ru) : (i18n.ui.retry[lang]||i18n.ui.retry.ru), ok);
+    showFeedback(ok ? (i18n.ui.ok[lang]||i18n.ui.ok.ua) : (i18n.ui.retry[lang]||i18n.ui.retry.ua), ok);
 
-    if(ok){
-      playSound('fanfare');
-      confettiBurst();
-    }else{
-      playSound('fail');
-    }
+    if(ok){ playSound('fanfare'); confettiBurst(); }
+    else  { playSound('fail'); }
   }
   dom.taskNew?.addEventListener('click', randomTask);
   dom.taskCheck?.addEventListener('click', checkAnswer);
 
-  // Init
+  /* =============== INIT =============== */
   layoutAll();
   (function syncNow(){
     const d = new Date();
@@ -462,51 +483,3 @@
   applyTaskLabels();
   applyMode();
 })();
-
-  function tryResumeAudio(){
-    try{
-      if(sounds.tick && mode === 'current'){
-        sounds.tick.play().catch(()=>{});
-      }
-    }catch(e){}
-  }
-  document.addEventListener('pointerdown', tryResumeAudio, {once:false});
-  document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState==='visible') tryResumeAudio();
-  });
-
-  // Default volumes
-  function setVolumes(){
-    try{
-      if(sounds.tick)    sounds.tick.volume    = 0.35;
-      if(sounds.fanfare) sounds.fanfare.volume = 0.9;
-      if(sounds.fail)    sounds.fail.volume    = 0.9;
-      if(sounds.clickPool && sounds.clickPool.length){
-        sounds.clickPool.forEach(a=>{ if(a) a.volume = 0.7; });
-      }
-    }catch(e){}
-  }
-  setVolumes();
-
-  // Arm audio on first real user gesture
-  let audioArmed = false;
-  function armAudioOnce(){
-    if(audioArmed) return;
-    audioArmed = true;
-    const pool = [sounds.tick, ...(sounds.clickPool||[]), sounds.fanfare, sounds.fail].filter(Boolean);
-    pool.forEach(a=>{ try{ a.currentTime = 0; a.play().then(()=>a.pause()).catch(()=>{}); }catch(e){} });
-    try{
-      if(sounds.tick && mode === 'current'){
-        sounds.tick.currentTime = 0;
-        sounds.tick.loop = true;
-        sounds.tick.play().catch(()=>{});
-      }
-    }catch(e){}
-  }
-  document.addEventListener('pointerdown', armAudioOnce, {once:false});
-  document.querySelector('.clock-scale')?.addEventListener('pointerdown', armAudioOnce, {once:false});
-  document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState==='visible'){
-      try{ if(sounds.tick && mode === 'current'){ sounds.tick.play().catch(()=>{}); } }catch(e){}
-    }
-  });
