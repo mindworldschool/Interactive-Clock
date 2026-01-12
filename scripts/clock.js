@@ -107,8 +107,24 @@
     }
   });
 
-  /* =============== LANGUAGE =============== */
-  let lang = localStorage.getItem('mws_lang') || 'ua';
+  /* =============== LANGUAGE (UPDATED) =============== */
+  // 1. Функция для чтения ?lang=...
+  function getUrlParam(name) {
+    const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    const results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  }
+
+  // 2. Логика: Ссылка > Сохраненное > UA
+  const urlLang = getUrlParam('lang');
+  let lang = 'ua';
+
+  if (urlLang && i18n[urlLang]) {
+    lang = urlLang; // Если в ссылке есть язык (en/ru/es/ua) — используем его
+  } else {
+    lang = localStorage.getItem('mws_lang') || 'ua'; // Иначе берем сохраненный
+  }
+
   function setLang(l){
     lang = l in i18n ? l : 'ua';
     localStorage.setItem('mws_lang', lang);
@@ -121,11 +137,13 @@
     applyModeLabels();
     applyTaskLabels();
   }
+  
   dom.switcher?.addEventListener('click', e=>{
     const b = e.target.closest('button[data-lang]');
     if(!b) return;
     setLang(b.dataset.lang);
   });
+  
   setLang(lang);
 
   /* =============== SCALE BUILD =============== */
