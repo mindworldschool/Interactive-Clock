@@ -212,51 +212,81 @@ body{
 .task-msg-row .task-target{ margin-bottom:4px; }
 .task-msg-row .task-title{ opacity:.9; margin-right:4px; }
 
-/* Мобилки: складываем пилюли в колонку */
-@media (max-width: 700px){
-  .controls-wrap{
-    grid-template-columns: 1fr;
-    justify-items: center;
+/* =============== МОБИЛЬНАЯ ВЕРСИЯ (ИСПРАВЛЕННАЯ) =============== */
+@media (max-width: 700px) {
+  
+  /* 1. Сбрасываем ограничения размера */
+  :root {
+    /* На телефоне карточка занимает ВСЮ ширину (минус отступы) */
+    /* Высота больше не ограничивает ширину, чтобы часы были крупными */
+    --card-size: 96vw; 
+    
+    /* Делаем стрелки тоньше на телефоне, чтобы было аккуратно */
+    --hand-hour:   8px;
+    --hand-minute: 6px;
+    --hand-second: 4px;
+    
+    /* Делаем засечки и цифры чуть меньше */
+    --rim: 4px;
+    --tick-w: 8px;
+    --tick-wM: 12px;
   }
+
+  /* 2. Настраиваем макет, чтобы все влезло */
+  .main-wrap {
+    padding: 8px 8px 100px 8px; /* Большой отступ снизу для скролла */
+    justify-content: flex-start;
+    overflow-y: auto; /* Разрешаем скролл, если часы не влезли по высоте */
+  }
+
+  /* 3. Карточка часов */
+  .clock-card {
+    width: 100%;
+    max-width: none; /* Убираем лимиты */
+    aspect-ratio: 1 / 1; /* Квадрат */
+    margin-bottom: 12px;
+    padding: 8px; /* Уменьшаем внутренние поля */
+  }
+
+  /* 4. Кнопки управления (растягиваем на всю ширину) */
+  .controls-wrap {
+    grid-template-columns: 1fr; /* Одна колонка */
+    gap: 8px;
+    width: 100%;
+  }
+
   .controls-row,
   .controls-row.center,
-  .controls-row.right{ justify-self: center; }
-}
+  .controls-row.right {
+    width: 100%;
+    justify-self: stretch;
+  }
 
-/* низкие экраны — чуть компактнее по высоте */
-@media (max-height: 700px){
-  :root{ --card-size: min(94vw, 740px, calc(100svh - 180px)); }
-  .digital{ font-size: clamp(18px, 4vw, 30px); }
-  .mws-title{ font-size: clamp(18px, 2.8vw, 26px); }
-}
+  /* 5. Сами кнопки (пилюли) */
+  .pill-switch {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .pill-switch button {
+    flex: 1; /* Кнопки растягиваются равномерно */
+    text-align: center;
+    justify-content: center;
+    padding: 8px 4px; /* Чуть меньше боковые отступы */
+    font-size: 13px; /* Шрифт чуть меньше, чтобы влез "Звичайний" */
+  }
 
-/* очень узкие телефоны */
-@media (max-width: 360px){
-  .main-wrap{ padding:6px 10px 10px; }
-}
-/* ПК/планшеты в альбомной ориентации */
-@media (min-width: 900px){
-  :root{
-    --hand-hour:   clamp(24px, 0.6vw, 14px);
-    --hand-minute: clamp(18px, 0.5vw, 12px);
-    --hand-second: clamp(3px, 0.4vw, 10px);
-  }
-}
-@media (max-width: 700px){
-  :root{
-    --hand-hour:   clamp(14px, 1.2vw, 10px);
-    --hand-minute: clamp(8px, 1.0vw, 9px);
-    --hand-second: clamp(2px, 0.9vw, 8px);
-  }
-}
-@media (max-width: 700px) {
-  :root {
-    /* уменьшаем высоту карточки, чтобы кнопки помещались */
-    --card-size: min(94vw, 680px, calc(100dvh - 320px));
-  }
-  .main-wrap {
-    padding-bottom: 80px; /* небольшой отступ, чтобы кнопки не упирались */
+  /* 6. Цифровые часы покрупнее */
+  .digital {
+    font-size: 24px;
+    padding: 6px 12px;
   }
 }
 
-
+/* Специально для очень узких телефонов (iPhone SE и т.д.) */
+@media (max-width: 360px) {
+  .pill-switch button {
+    font-size: 11px;
+  }
+}
